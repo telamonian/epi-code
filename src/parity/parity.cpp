@@ -27,7 +27,29 @@ vector<uint64_t> initCountTable() {
 }
 
 uint64_t parity(uint64_t n) {
-    return count(n) % 2;
+    uint64_t par = 0;
+    while (n) {
+        par ^= 1;
+
+        // x will be all zeros except for the lowest set bit in n
+        // uint64_t x = n & (~(n -1));
+        // n ^= x;
+
+        // the above two lines can be replaced with the equivalent
+        n &= (n - 1);
+    }
+
+    return par;
+}
+
+// parity by "logarithmic" XOR
+uint64_t xorParity(uint64_t n) {
+    n ^= n >> 32;
+    n ^= n >> 16;
+    n ^= n >> 8;
+    n ^= n >> 4;
+    n ^= n >> 2;
+    return (n ^ (n >> 1)) & 1;
 }
 
 vector<uint64_t> initParityTable() {
@@ -51,7 +73,7 @@ uint64_t fastCount(uint64_t n) {
           + cntTab[(n >> 32) & mask]
           + cntTab[(n >> 40) & mask]
           + cntTab[(n >> 48) & mask]
-          + cntTab[(n >> 56) & mask]);
+          + cntTab[(n >> 56)]);
 }
 
 uint64_t fastParity(uint64_t n) {
@@ -63,7 +85,7 @@ uint64_t fastParity(uint64_t n) {
            + parTab[(n >> 32) & mask]
            + parTab[(n >> 40) & mask]
            + parTab[(n >> 48) & mask]
-           + parTab[(n >> 56) & mask]) % 2);
+           + parTab[(n >> 56)]) % 2);
 }
 
 void printCount(uint64_t n) {
@@ -79,6 +101,7 @@ void assertParity(uint64_t n, uint64_t count, uint64_t par) {
     printParity(n);
     ASSERT_UINT_EQUAL(count, fastCount(n));
     ASSERT_UINT_EQUAL(par, fastParity(n));
+    ASSERT_UINT_EQUAL(par, xorParity(n));
 }
 
 void printTable(vector<uint64_t>& tab) {
