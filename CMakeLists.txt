@@ -5,6 +5,6 @@ project(epi-code)
 include_directories(src)
 
 add_subdirectory(src/parity)
-add_subdirectory(src/primitive_bit_count)
+add_subdirectory(src/bitCount)
 add_subdirectory(src/partition)
 

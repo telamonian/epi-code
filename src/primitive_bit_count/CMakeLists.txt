@@ -1,9 +1,0 @@
-set(primitive_bit_count_src primitive_bit_count.cpp)
-add_executable(primitive_bit_count ${primitive_bit_count_src})
-
-set(primitive_bit_count_cstdio_src primitive_bit_count_cstdio.cpp)
-add_executable(primitive_bit_count_cstdio ${primitive_bit_count_cstdio_src})
-
-set(primitive_bit_count_dowhile_src primitive_bit_count_dowhile.cpp)
-add_executable(primitive_bit_count_dowhile ${primitive_bit_count_dowhile_src})
-
