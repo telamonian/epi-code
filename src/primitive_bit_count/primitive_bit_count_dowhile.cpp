@@ -5,7 +5,7 @@ T bitCount(T num) {
     T count = 0;
     do {
         if (num & 1) count++;
-    } while (num = num >> 1);
+    } while (num >>= 1);
 
     return count;
 }

@@ -1,5 +1,10 @@
+# cmake stuff
 build/
-.idea
 
+# jetbrains stuff
+.idea
+/cmake-build*
+
+# vim stuff
 *.swp
 
