@@ -4,7 +4,7 @@
 
 #include "print.h"
 #include "test.h"
-#include "mergeLists/mergeLists.h"
+#include "list.h"
 
 using epi::Node;
 
