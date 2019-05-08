@@ -2,9 +2,14 @@ cmake_minimum_required(VERSION 3.13)
 
 project(epi-code)
 
-include_directories(src)
+set(CMAKE_CXX_STANDARD 11)
 
-add_subdirectory(src/parity)
+find_package(boost REQUIRED)
+
+include_directories(src
+                    ${Boost_INCLUDE_DIRS})
+
 add_subdirectory(src/bitCount)
+add_subdirectory(src/mergeLists)
+add_subdirectory(src/parity)
 add_subdirectory(src/partition)
-
