@@ -4,14 +4,14 @@
 
 #include "print.h"
 #include "test.h"
-#include "list.h"
+#include "graph.h"
 
-using epi::Node;
+using epi::NodeSingle;
 
 namespace epi {
 
 template <typename T>
-Node<T>* merge(Node<T>* l, Node<T>* f) {
+NodeSingle<T>* merge(NodeSingle<T>* l, NodeSingle<T>* f) {
     while (l != NULL and f != NULL) {
         if (l->data <= f->data) {
             std::swap(l->next, f);
@@ -26,9 +26,9 @@ Node<T>* merge(Node<T>* l, Node<T>* f) {
 }
 
 template <typename T>
-Node<T>* mergeLeft(Node<T>* l, Node<T>* f) {
+NodeSingle<T>* mergeLeft(NodeSingle<T>* l, NodeSingle<T>* f) {
     if (l->data > f->data) std::swap(l, f);
-    Node<T>* ret = l;
+    NodeSingle<T>* ret = l;
 
     while (l != NULL and f != NULL) {
         if (f->data >= l->data and (l->next == NULL or f->data < l->next->data)) std::swap(l->next, f);
@@ -39,13 +39,13 @@ Node<T>* mergeLeft(Node<T>* l, Node<T>* f) {
 }
 
 template <typename T>
-Node<T>* doMerge(Node<T>* l, Node<T>* f, const std::vector<T>& intended) {
+NodeSingle<T>* doMerge(NodeSingle<T>* l, NodeSingle<T>* f, const std::vector<T>& intended) {
     std::cout << "l list: ";
     l->print();
     std::cout << "f list: ";
     f->print();
 
-    Node<int>* merged = mergeLeft(l, f);
+    NodeSingle<int>* merged = mergeLeft(l, f);
 
     std::cout << "merged list: ";
     merged->print();
@@ -62,18 +62,18 @@ Node<T>* doMerge(Node<T>* l, Node<T>* f, const std::vector<T>& intended) {
 int main() {
     // case 1
     {
-        Node<int> l2(7);
-        Node<int> l1(5, &l2);
-        Node<int> l0(2, &l1);
+        NodeSingle<int> l2(7);
+        NodeSingle<int> l1(5, &l2);
+        NodeSingle<int> l0(2, &l1);
 
-        Node<int> f1(11);
-        Node<int> f0(3, &f1);
+        NodeSingle<int> f1(11);
+        NodeSingle<int> f0(3, &f1);
 
-        Node<int> m4(11);
-        Node<int> m3(7, &m4);
-        Node<int> m2(5, &m3);
-        Node<int> m1(3, &m2);
-        Node<int> m0(2, &m1);
+        NodeSingle<int> m4(11);
+        NodeSingle<int> m3(7, &m4);
+        NodeSingle<int> m2(5, &m3);
+        NodeSingle<int> m1(3, &m2);
+        NodeSingle<int> m0(2, &m1);
 
         epi::doMerge(&l0, &f0, m0.to());
     }
@@ -85,13 +85,13 @@ int main() {
         std::vector<int> mvec;
         std::merge(lvec.begin(), lvec.end(), fvec.begin(), fvec.end(), std::back_inserter(mvec));
 
-        Node<int>* l = Node<int>::from(lvec);
-        Node<int>* f = Node<int>::from(fvec);
+        NodeSingle<int>* l = NodeSingle<int>::from(lvec);
+        NodeSingle<int>* f = NodeSingle<int>::from(fvec);
 
-        Node<int>* merged = epi::doMerge(l, f, mvec);
+        NodeSingle<int>* merged = epi::doMerge(l, f, mvec);
         // check the dynamic allocation stuff
         merged->destroy();
-        ASSERT_UINT_EQUAL(0, Node<int>::dynamicInstances);
+        ASSERT_UINT_EQUAL(0, NodeSingle<int>::dynamicInstances);
     }
 
     // case 3
@@ -101,9 +101,9 @@ int main() {
         std::vector<int> mvec;
         std::merge(lvec.begin(), lvec.end(), fvec.begin(), fvec.end(), std::back_inserter(mvec));
 
-        Node<int>* l = Node<int>::from(lvec);
-        Node<int>* f = Node<int>::from(fvec);
+        NodeSingle<int>* l = NodeSingle<int>::from(lvec);
+        NodeSingle<int>* f = NodeSingle<int>::from(fvec);
 
-        Node<int>* merged = epi::doMerge(l, f, mvec);
+        NodeSingle<int>* merged = epi::doMerge(l, f, mvec);
     }
 }

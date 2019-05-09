@@ -65,6 +65,15 @@ public:
     template <typename T> AssertionError(int line, const char *file, T format, ...) {init(file, line, format, (va_start(_va, format), _va)); va_end(_va);}
 };
 
+class ValueError : public Exception
+{
+public:
+    virtual const char* preamble() const throw() {return "Value error";}
+
+    template <typename T> ValueError(T format, ...) {init(format, (va_start(_va, format), _va)); va_end(_va);}
+    template <typename T> ValueError(int line, const char *file, T format, ...) {init(file, line, format, (va_start(_va, format), _va)); va_end(_va);}
+};
+
 }
 
 #endif //EPI_CODE_EXCEPTION_H
