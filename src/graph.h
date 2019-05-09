@@ -2,7 +2,9 @@
 #define EPI_MERGE_LISTS
 
 #include <cstddef>
+#include <initializer_list>
 #include <iostream>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -14,8 +16,8 @@ namespace graph {
 
 enum Color {
     WHITE = 0,
-    GRAY,
-    BLACK,
+    GRAY = 1,
+    BLACK = 2,
 };
 
 template <typename T>
@@ -23,10 +25,10 @@ class NodeSingle {
 public:
     NodeSingle(): data(), next(NULL) {}
 
-    // NodeSingle(T& data): data(data), next(NULL) {}
+    NodeSingle(T& data): data(data), next(NULL) {}
     NodeSingle(T&& data): data(data), next(NULL) {}
 
-    // NodeSingle(T& data, NodeSingle<T>* next): data(data), next(next) {}
+    NodeSingle(T& data, NodeSingle<T>* next): data(data), next(next) {}
     NodeSingle(T&& data, NodeSingle<T>* next): data(data), next(next) {}
 
     void advance() {
@@ -87,29 +89,56 @@ uint NodeSingle<T>::dynamicInstances = 0;
 template <typename T>
 class NodeDirected {
 public:
-    typedef std::unordered_set<NodeDirected<T>*> ChildSet;
+    typedef NodeDirected<T> This;
+    typedef std::unordered_set<This*> ChildSet;
 
     NodeDirected(): _color() {}
-    NodeDirected(T&& data): NodeDirected(), data(data) {}
+    NodeDirected(T& data): _color(), data(data) {}
+    NodeDirected(T&& data): NodeDirected(data) {}
 
     template <class... Args>
     NodeDirected(T&& data, Args... args): NodeDirected(data), children({args...}) {}
 
-    NodeDirected<T>* dfsLoop() const {
+    This* dfsLoop() {
         if (_color != Color::WHITE) THROW_EXCEPTION(ValueError, "NodeDirected::dfsLoop should only be called on white colored instances.\n"
-                                                                "this->_color: %d", _color);
+                                                                "this->data: %d, this->_color: %d", data, _color);
 
         _color = Color::GRAY;
         for (typename ChildSet::iterator it=children.begin(); it != children.end(); it++) {
-            if (it->_color == Color::WHITE) {
-                return it->dfsLoop();
-            } else if (it->_color == Color::GRAY) {
+            This* child = *it;
+            if (child->_color == Color::WHITE) {
+                This* loopHead = child->dfsLoop();
+                if (loopHead) return loopHead;
+            } else if (child->_color == Color::GRAY) {
                 // encountered node still being processed, must be start of loop
-                return &*it;
+                return child;
             }
         }
 
         _color = Color::BLACK;
+        return NULL;
+    }
+
+    This* dfsLoopDebug() {
+        if (_color != Color::WHITE) THROW_EXCEPTION(ValueError, "NodeDirected::dfsLoop should only be called on white colored instances.\n"
+                                                                "this->data: %d, this->_color: %d", data, _color);
+
+        _color = Color::GRAY;
+        std::cout << "Node: " << data << " is now color: " << _color << '\n';
+        for (typename ChildSet::iterator it=children.begin(); it != children.end(); it++) {
+            This* child = *it;
+            std::cout << "Node: " << data << " found child: " << child->data << " of color: " << child->_color << '\n';
+            if (child->_color == Color::WHITE) {
+                This* loopHead = child->dfsLoopDebug();
+                if (loopHead) return loopHead;
+            } else if (child->_color == Color::GRAY) {
+                // encountered node still being processed, must be start of loop
+                return child;
+            }
+        }
+
+        _color = Color::BLACK;
+        std::cout << "Node: " << data << " is now color: " << _color << '\n';
         return NULL;
     }
 
@@ -131,11 +160,53 @@ public:
 template <typename T>
 class GraphDirected {
 public:
-    NodeDirected<T>* addNode(int id) {
+    typedef NodeDirected<T> Node;
+    typedef std::unordered_map<int, Node> NodeMap;
 
+    GraphDirected() {}
+
+    template <typename... Args> GraphDirected(const char* name, Args... args): name(name) {addNode(args...);}
+    template <typename... Args> GraphDirected(Args... args) {addNode(args...);}
+
+    template <typename... Args>
+    void addNode(Args... args) {
+        std::vector<int> ids = {args...};
+        for (auto id: ids) {
+            nodes.emplace(id, id);
+        }
     }
 
-    std::unordered_map nodes;
+    void addEdge(int id0, int id1) {
+        nodes[id0].children.insert(&nodes[id1]);
+    }
+
+    Node* dfsLoop() {
+        Node* ret = NULL;
+        for (typename NodeMap::iterator it=nodes.begin(); it != nodes.end(); it++) {
+            if (it->second._color == Color::WHITE) {
+                ret = it->second.dfsLoop();
+                if (ret) return ret;
+            }
+        }
+
+        return ret;
+    }
+
+    Node* dfsLoopDebug() {
+        Node* ret = NULL;
+        for (typename NodeMap::iterator it=nodes.begin(); it != nodes.end(); it++) {
+            if (it->second._color == Color::WHITE) {
+                std::cout << "Starting GraphDirected::dfsLoop at node: " << it->second.data << '\n';
+                ret = it->second.dfsLoopDebug();
+                if (ret) return ret;
+            }
+        }
+
+        return ret;
+    }
+
+    NodeMap nodes;
+    std::string name;
 };
 
 }

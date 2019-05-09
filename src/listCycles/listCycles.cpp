@@ -4,7 +4,7 @@
 #include "graph.h"
 #include "test.h"
 
-using epi::NodeSingle;
+using epi::graph::NodeSingle;
 
 namespace epi {
 

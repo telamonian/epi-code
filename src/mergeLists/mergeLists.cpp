@@ -6,7 +6,7 @@
 #include "test.h"
 #include "graph.h"
 
-using epi::NodeSingle;
+using epi::graph::NodeSingle;
 
 namespace epi {
 
