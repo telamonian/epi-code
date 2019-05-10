@@ -24,17 +24,13 @@ void _allSubarrays(const Vec<T>& v0, const Vec<T>& v1, Vecvec<T>& vv) {
         if (v1.empty()) {
             return;
         }
-        Vec<T> u0(v1.begin(), v1.end());
-        Vec<T> u1(v1.begin(), v1.end() - 1);
-        vv.push_back(u0);
-        vv.push_back(u1);
-        return _allSubarrays(u0, u1, vv);
+        vv.emplace_back(v1.begin(), v1.end());
+        vv.emplace_back(v1.begin(), v1.end() - 1);
+        return _allSubarrays(vv.end()[-2], vv.end()[-1], vv);
     }
-    Vec<T> u0(v0.begin() + 1, v0.end());
-    Vec<T> u1(v1.begin(), v1.end());
-    vv.push_back(u0);
-    vv.push_back(u1);
-    return _allSubarrays(u0, u1, vv);
+    vv.emplace_back(v0.begin() + 1, v0.end());
+    vv.emplace_back(v1.begin(), v1.end());
+    return _allSubarrays(vv.end()[-2], vv.end()[-1], vv);
 }
 
 template <typename T>
@@ -42,8 +38,8 @@ Vecvec<T> allSubarrays(const Vec<T>& arr) {
     Vecvec<T> vv;
     if (arr.empty()) return vv;
 
-    vv.push_back(Vec<T>(arr.begin(), arr.end()));
-    vv.push_back(Vec<T>(arr.begin(), arr.end() - 1));
+    vv.emplace_back(arr.begin(), arr.end());
+    vv.emplace_back(arr.begin(), arr.end() - 1);
 
     _allSubarrays(vv[0], vv[1], vv);
     return vv;
@@ -55,6 +51,7 @@ Vec<int> maxSubarrayXORRecursive(const Vec<int>& arr) {
 
     auto vv = allSubarrays(arr);
     for (int i=0; i < vv.size(); i++) {
+        printArr(vv[i]);
         int acc = std::accumulate(vv[i].begin(), vv[i].end(), 0, std::bit_xor<>());
         if (acc > max) {
             max = acc;
