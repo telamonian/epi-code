@@ -3,7 +3,7 @@
 #include <numeric>
 #include <vector>
 
-template<class InputIt>
+template<typename InputIt>
 void printRange(InputIt start, InputIt end) {
     if (start != end) std::cout << *start++;
     for (; start != end; start++) std::cout << ", " << *start;
@@ -15,43 +15,39 @@ void printArr(const std::vector<T>& arr) {
     printRange(arr.begin(), arr.end());
 }
 
-template <typename T> using Vec = std::vector<T>;
-template <typename T> using Vecvec = std::vector<std::vector<T>>;
-
 template <typename T>
-void _allSubarrays(const Vec<T>& v0, const Vec<T>& v1, Vecvec<T>& vv) {
-    if (v0.empty()) {
-        if (v1.empty()) {
-            return;
-        }
-        vv.emplace_back(v1.begin(), v1.end());
-        vv.emplace_back(v1.begin(), v1.end() - 1);
-        return _allSubarrays(vv.end()[-2], vv.end()[-1], vv);
+void printSubArrs(const std::vector<std::vector<T>>& subArrs) {
+    for (auto&& arr : subArrs) {
+        printArr(arr);
     }
-    vv.emplace_back(v0.begin() + 1, v0.end());
-    vv.emplace_back(v1.begin(), v1.end());
-    return _allSubarrays(vv.end()[-2], vv.end()[-1], vv);
 }
 
-template <typename T>
-Vecvec<T> allSubarrays(const Vec<T>& arr) {
-    Vecvec<T> vv;
-    if (arr.empty()) return vv;
+template <typename InputIt, typename T=typename std::iterator_traits<InputIt>::value_type>
+void allSubarrays(InputIt begin, InputIt end, InputIt begin0, std::vector<std::vector<T>>& vv) {
+    if (begin == end) {
+        if (begin0 == end) {
+            return;
+        }
+        return allSubarrays(begin0, --end, begin0, vv);
+    }
+    vv.emplace_back(begin++, end);
+    return allSubarrays(begin, end, begin0, vv);
+}
 
-    vv.emplace_back(arr.begin(), arr.end());
-    vv.emplace_back(arr.begin(), arr.end() - 1);
-
-    _allSubarrays(vv[0], vv[1], vv);
+template <typename InputIt, typename T=typename std::iterator_traits<InputIt>::value_type>
+auto allSubarrays(InputIt begin, InputIt end) {
+    std::vector<std::vector<T>> vv;
+    allSubarrays(begin, end, begin, vv);
     return vv;
 }
 
-Vec<int> maxSubarrayXORRecursive(const Vec<int>& arr) {
+std::vector<int> maxSubarrayXORRecursive(const std::vector<int>& arr) {
     int max = 0;
     int maxi = 0;
 
-    auto vv = allSubarrays(arr);
+    auto vv = allSubarrays(arr.begin(), arr.end());
+    // printSubArrs(vv);
     for (int i=0; i < vv.size(); i++) {
-        printArr(vv[i]);
         int acc = std::accumulate(vv[i].begin(), vv[i].end(), 0, std::bit_xor<>());
         if (acc > max) {
             max = acc;
@@ -66,4 +62,5 @@ int main() {
     printArr(maxSubarrayXORRecursive({3, 9, 4, 12, 7}));
     printArr(maxSubarrayXORRecursive({11, 2, 5, 3, 16, 8}));
     printArr(maxSubarrayXORRecursive({5, 18, 10, 7, 14, 3}));
+    printArr(maxSubarrayXORRecursive({4, 1, 3}));
 }
